@@ -143,6 +143,10 @@ snippet rai "raise"
 raise ${1}
 endsnippet
 
+snippet ex "exit(0)"
+exit(0)
+endsnippet
+
 snippet tr "traceback"
 import traceback; traceback.print_exc()
 endsnippet
@@ -174,3 +178,9 @@ snippet dk "api doc"
         code:
 
 endsnippet
+
+snippet pj "print jso"
+print json.dumps(${1},ensure_ascii=False,indent=4)
+endsnippet
+
+

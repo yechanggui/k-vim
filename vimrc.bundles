@@ -17,7 +17,7 @@ filetype off " required! turn off
 " inspired by spf13, 自定义需要的插件集合
 if !exists('g:bundle_groups')
     " let g:bundle_groups=['python', 'javascript', 'golang', 'php', 'ruby', 'shell', 'markdown', 'html', 'css', 'less', 'coffeescript', 'tmux', 'json', 'beta']
-    let g:bundle_groups=['python', 'javascript', 'markdown', 'html', 'css', 'tmux', 'beta']
+    let g:bundle_groups=['python', 'javascript', 'markdown', 'html', 'css', 'tmux', 'beta', 'json']
 endif
 
 " ----------------------------------------------------------------------------
@@ -36,6 +36,17 @@ else
     Plug 'w0rp/ale'
 endif
 
+
+" 全局查找文件
+Plug 'L9'
+Plug 'FuzzyFinder'
+
+" 查找最近的文件
+Plug 'mru.vim'
+" runpython
+Plug '~/.vim/plugin-script'
+" 删除所有buff]
+Plug 'Asheq/close-buffers.vim'
 " Group dependencies, vim-snippets depends on ultisnips
 " 代码片段快速插入 (snippets中,是代码片段资源,需要学习)
 " Snippets are separated from the engine. Add this if you want them:
@@ -149,6 +160,8 @@ Plug 'scrooloose/nerdtree' | Plug 'jistr/vim-nerdtree-tabs'
 Plug 'vim-ctrlspace/vim-ctrlspace'
 " tagbar
 Plug 'majutsushi/tagbar'
+" nerdtree-git
+Plug 'Xuyuanp/nerdtree-git-plugin'
 
 " text object
 " 支持自定义文本对象
@@ -169,11 +182,11 @@ endif
 if count(g:bundle_groups, 'markdown')
     Plug 'plasticboy/vim-markdown', {'for': 'md'}
     " https://github.com/suan/vim-instant-markdown
-    " npm -g install instant-markdown-d
-    " Plug 'suan/vim-instant-markdown'
-    " let g:instant_markdown_slow = 1
-    " let g:instant_markdown_autostart = 0
-    " map <F12> :InstantMarkdownPreview<CR>
+  " npm -g install instant-markdown-d
+    Plug 'suan/vim-instant-markdown'
+    let g:instant_markdown_slow = 1
+    let g:instant_markdown_autostart = 0
+    map <F12> :InstantMarkdownPreview<CR>
 endif
 
 if count(g:bundle_groups, 'golang')
@@ -190,12 +203,21 @@ if count(g:bundle_groups, 'python')
     Plug 'hdima/python-syntax'
     Plug 'hynek/vim-python-pep8-indent'
     Plug 'Glench/Vim-Jinja2-Syntax'
-
+    "  pip install --upgrade autopep8
+    Plug 'vim-autopep8'
+    Plug 'Yggdroot/indentLine'
     " isort  https://github.com/timothycrosley/isort#readme + https://github.com/fisadev/vim-isort#installation
     " pip install isort
     Plug 'fisadev/vim-isort'
     " Shift-V 上下选中, ctrl + i 规范化
     let g:vim_isort_map = '<C-i>'
+    "缩进指示线"
+    let g:indentLine_char='┆'
+    let g:indentLine_enabled = 1
+
+    "autopep8设置"
+    let g:autopep8_disable_show_diff=1
+    autocmd FileType python noremap <buffer> <F8> :call Autopep8()<CR>
 endif
 
 if count(g:bundle_groups, 'php')
@@ -641,7 +663,7 @@ endif
 
 " fugitive {{{
     " :Gdiff  :Gstatus :Gvsplit
-    nnoremap <leader>ge :Gdiff<CR>
+    nnoremap <leader>gf :Gdiff<CR>
     " not ready to open
     " <leader>gb maps to :Gblame<CR>
     " <leader>gs maps to :Gstatus<CR>
@@ -655,7 +677,7 @@ endif
     " 同git diff,实时展示文件中修改的行
     " 只是不喜欢除了行号多一列, 默认关闭,gs时打开
     let g:gitgutter_map_keys = 0
-    let g:gitgutter_enabled = 0
+    let g:gitgutter_enabled = 1
     let g:gitgutter_highlight_lines = 1
     nnoremap <leader>gs :GitGutterToggle<CR>
 " }}}
@@ -743,12 +765,27 @@ endif
     " nerdtreetabs
     map <Leader>n <plug>NERDTreeTabsToggle<CR>
     " 关闭同步
-    " let g:nerdtree_tabs_synchronize_view=0
-    " let g:nerdtree_tabs_synchronize_focus=0
+    let g:nerdtree_tabs_synchronize_view=1
+    let g:nerdtree_tabs_autofind=1
+    let g:nerdtree_tabs_focus_on_files=1
     " 是否自动开启nerdtree
-    " thank to @ListenerRi, see https://github.com/wklken/k-vim/issues/165
-    let g:nerdtree_tabs_open_on_console_startup=0
-    let g:nerdtree_tabs_open_on_gui_startup=0
+    " thank to @listenerri, see https://github.com/wklken/k-vim/issues/165
+    let g:nerdtree_tabs_open_on_console_startup=1
+    let g:nerdtree_tabs_open_on_gui_startup=1
+    " nerdtree-git-plugin
+    let g:nerdtreeshowignoredstatus = 1
+    let g:nerdtreeindicatormapcustom = {
+    \ "modified"  : "✹",
+    \ "staged"    : "✚",
+    \ "untracked" : "✭",
+    \ "renamed"   : "➜",
+    \ "unmerged"  : "═",
+    \ "deleted"   : "✖",
+    \ "dirty"     : "✗",
+    \ "clean"     : "✔︎",
+    \ 'ignored'   : '☒',
+    \ "unknown"   : "?"
+    \ }
 " }}}
 
 
@@ -865,7 +902,8 @@ endif
 " }}}
 
 " json {{{
-    let g:vim_json_syntax_conceal = 0
+    let g:vim_json_syntax_conceal =1
+    " let g:indentLine_noConcealCursor=""
 " }}}
 
 " css {{{
@@ -878,9 +916,9 @@ endif
     " pip install yapf
     " python code format
     " format all file
-    autocmd FileType python nnoremap <leader>y :0,$!yapf<Cr>
+    autocmd filetype python nnoremap <leader>y :0,$!yapf<cr>
     " format select block
-    autocmd FileType python vnoremap <leader>y :!yapf<Cr>
+    autocmd filetype python vnoremap <leader>y :!yapf<cr>
 
     " Plug 'posva/vim-vue'
 

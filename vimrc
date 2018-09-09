@@ -64,6 +64,10 @@ filetype plugin indent on
 set autoread
 " 启动的时候不显示那个援助乌干达儿童的提示
 set shortmess=atI
+"设定文件浏览器目录为当前目录
+" set bsdir=buffer
+"自动切换当前目录为当前文件所在的目录
+" set autochdir
 
 " 备份,到另一个位置. 防止误删, 目前是取消备份
 "set backup
@@ -124,7 +128,7 @@ set tm=500
 
 " Remember info about open buffers on close
 set viminfo^=%
-
+" set viminfo='10,\"100,:20,%,n$VIMRUNTIME/_viminfo
 " For regular expressions turn magic on
 set magic
 
@@ -309,10 +313,10 @@ autocmd CmdwinEnter * nnoremap <buffer> <CR> <CR>
 
 
 " 上下左右键的行为 会显示其他信息
-inoremap <expr> <Down>     pumvisible() ? "\<C-n>" : "\<Down>"
-inoremap <expr> <Up>       pumvisible() ? "\<C-p>" : "\<Up>"
-inoremap <expr> <PageDown> pumvisible() ? "\<PageDown>\<C-p>\<C-n>" : "\<PageDown>"
-inoremap <expr> <PageUp>   pumvisible() ? "\<PageUp>\<C-p>\<C-n>" : "\<PageUp>"
+" inoremap <expr> <Down>     pumvisible() ? "\<C-n>" : "\<Down>"
+" inoremap <expr> <Up>       pumvisible() ? "\<C-p>" : "\<Up>"
+" inoremap <expr> <PageDown> pumvisible() ? "\<PageDown>\<C-p>\<C-n>" : "\<PageDown>"
+" inoremap <expr> <PageUp>   pumvisible() ? "\<PageUp>\<C-p>\<C-n>" : "\<PageUp>"
 
 " 打开自动定位到最后编辑的位置, 需要确认 .viminfo 当前用户可写
 if has("autocmd")
@@ -326,10 +330,10 @@ endif
 " 主要按键重定义
 
 " 关闭方向键, 强迫自己用 hjkl
-map <Left> <Nop>
-map <Right> <Nop>
-map <Up> <Nop>
-map <Down> <Nop>
+" map <Left> <Nop>
+" map <Right> <Nop>
+" map <Up> <Nop>
+" map <Down> <Nop>
 
 "Treat long lines as break lines (useful when moving around in them)
 "se swap之后，同物理行上线直接跳
@@ -380,7 +384,7 @@ function! XTermPasteBegin()
   set paste
   return ""
 endfunction
-inoremap <special> <expr> <Esc>[200~ XTermPasteBegin()
+" inoremap <special> <expr> <Esc>[200~ XTermPasteBegin()
 
 
 
@@ -457,20 +461,11 @@ nnoremap ]b :bnext<cr>
 " 使用方向键切换buffer
 noremap <left> :bp<CR>
 noremap <right> :bn<CR>
-
-
+nnoremap <silent> Q :CloseBuffersMenu<CR>
 " tab 操作
 " http://vim.wikia.com/wiki/Alternative_tab_navigation
 " http://stackoverflow.com/questions/2005214/switching-to-a-particular-tab-in-vim
 
-" tab切换
-map <leader>th :tabfirst<cr>
-map <leader>tl :tablast<cr>
-
-map <leader>tj :tabnext<cr>
-map <leader>tk :tabprev<cr>
-map <leader>tn :tabnext<cr>
-map <leader>tp :tabprev<cr>
 
 map <leader>te :tabedit<cr>
 map <leader>td :tabclose<cr>
@@ -480,13 +475,6 @@ map <leader>tm :tabm<cr>
 noremap <leader>1 1gt
 noremap <leader>2 2gt
 noremap <leader>3 3gt
-noremap <leader>4 4gt
-noremap <leader>5 5gt
-noremap <leader>6 6gt
-noremap <leader>7 7gt
-noremap <leader>8 8gt
-noremap <leader>9 9gt
-noremap <leader>0 :tablast<cr>
 
 " Toggles between the active and last active tab "
 " The first tab is always 1 "
@@ -500,6 +488,8 @@ autocmd TabLeave * let g:last_active_tab = tabpagenr()
 " 新建tab  Ctrl+t
 nnoremap <C-t>     :tabnew<CR>
 inoremap <C-t>     <Esc>:tabnew<CR>
+nnoremap <C-r> :MRU<CR>
+nnoremap <leader>ff :FufFile<CR><F9>
 
 
 " => 选中及操作改键
@@ -535,8 +525,8 @@ cmap w!! w !sudo tee >/dev/null %
 inoremap kj <Esc>
 
 " 滚动Speed up scrolling of the viewport slightly
-nnoremap <C-e> 2<C-e>
-nnoremap <C-y> 2<C-y>
+nnoremap <C-e> 4<C-e>
+nnoremap <C-y> 4<C-y>
 
 
 " Jump to start and end of line using the home row keys
@@ -564,6 +554,9 @@ nnoremap U <C-r>
 nnoremap <leader>ev :vsp $MYVIMRC<CR>
 nnoremap <leader>ez :vsp ~/.zshrc<CR>
 nnoremap <leader>sv :source $MYVIMRC<CR>
+map <F4> <Esc>:%!python -m json.tool<CR>
+
+
 
 "==========================================
 " FileType Settings  文件类型设置
@@ -601,9 +594,13 @@ function! AutoSetFileHead()
 
     "如果文件类型为python
     if &filetype == 'python'
-        " call setline(1, "\#!/usr/bin/env python")
-        " call append(1, "\# encoding: utf-8")
-        call setline(1, "\# -*- coding: utf-8 -*-")
+        call setline(1, "\#!/usr/bin/env python")
+        call setline(2, "\# -*- coding: utf-8 -*-")
+        call setline(3, "\#Author: Vincent")
+        call setline(4, "\# Mail: yecg@ruyi.ai")
+        call setline(5, "\# Created Time:".strftime("%Y年%m月%d日"))
+        call setline(6, "\# Version:1.0")
+        call setline(7, "\# FileName:".expand("%:t"))
     endif
 
     normal G
@@ -611,6 +608,7 @@ function! AutoSetFileHead()
     normal o
 endfunc
 
+highlight Comment cterm=italic
 
 " 设置可以高亮的关键字
 if has("autocmd")
@@ -621,6 +619,7 @@ if has("autocmd")
   endif
 endif
 
+"
 "==========================================
 " TEMP 设置, 尚未确定要不要
 "==========================================
